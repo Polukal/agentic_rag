@@ -1,9 +1,9 @@
 # 🧠 Agentic RAG System
 
-This is a specialized **Retrieval-Augmented Generation (RAG)** system designed to interpret and answer **Turkish literature questions**, especially **multiple-choice style (MCQ)** questions based on PDF documents.
+This is a specialized **Retrieval-Augmented Generation (RAG)** system designed to interpret and answer questions, especially **multiple-choice style (MCQ)** questions based on PDF documents.
 
 The system enables users to:
-- Upload their own Turkish literature PDFs (e.g., poetry, essays, practice questions)
+- Upload their own PDFs (e.g., poetry, essays, practice questions)
 - Ask complex, contextual questions
 - Get accurate, document-grounded answers via GPT-4
 - Run everything through a user-friendly **Streamlit web interface**

@@ -50,7 +50,7 @@ def build_rag_chain(vectorstore):
     return RetrievalQA.from_chain_type(llm=llm, retriever=retriever, chain_type="stuff", return_source_documents=True)
 
 # App UI
-st.set_page_config(page_title="📚 Turkish Literature Assistant", layout="wide")
+st.set_page_config(page_title="📚 Agentic RAG Assistant", layout="wide")
 st.title("📖 Agentic RAG Asistanı")
 st.markdown("Bu uygulama, yüklediğiniz PDF dosyalarına göre çoktan seçmeli soruları cevaplandırır.")
 
