@@ -79,7 +79,9 @@ def run_rag_only(rag_chain):
 
         response = rag_chain.invoke({"query": query})
         print("\n✍️ Yanıt:\n", response["result"])
-
+        print("\n📄 Kaynaklar:")
+        for doc in response["source_documents"]:
+            print(f"- {doc.metadata['source']} (sayfa {doc.metadata.get('page', '?')})")
 
 # -- Main script entry
 if __name__ == "__main__":
