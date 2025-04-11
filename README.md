@@ -21,7 +21,7 @@ This repository contains a simple yet powerful agentic RAG (Retrieval-Augmented 
 1. Clone this repository:
    ```bash
    git clone https://github.com/Polukal/agentic_rag.git
-   cd agentic-rag
+   cd agentic_rag
    ```
 
 2. Install the required packages:
