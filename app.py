@@ -52,7 +52,7 @@ def build_rag_chain(vectorstore):
 # App UI
 st.set_page_config(page_title="📚 Agentic RAG Assistant", layout="wide")
 st.title("📖 Agentic RAG Asistanı")
-st.markdown("Bu uygulama, yüklediğiniz PDF dosyalarına göre çoktan seçmeli soruları cevaplandırır.")
+st.markdown("Bu uygulama, yüklediğiniz PDF dosyalarına göre cevap verebilen bir yapay zeka assistanıdır. Çoktan seçmeli soruları da cevaplandırabilir.")
 
 # File upload section
 uploaded_files = st.file_uploader("📤 PDF yükleyin", type="pdf", accept_multiple_files=True)
