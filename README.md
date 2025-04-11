@@ -1,95 +1,148 @@
-# Agentic RAG System
+# 🧠 Agentic RAG System
 
-This repository contains a simple yet powerful agentic RAG (Retrieval-Augmented Generation) system that allows you to query PDF documents using natural language. The system combines document retrieval with a language model agent to provide accurate answers based on the content of your PDFs.
+This is a specialized **Retrieval-Augmented Generation (RAG)** system designed to interpret and answer **Turkish literature questions**, especially **multiple-choice style (MCQ)** questions based on PDF documents.
 
-## Features
+The system enables users to:
+- Upload their own Turkish literature PDFs (e.g., poetry, essays, practice questions)
+- Ask complex, contextual questions
+- Get accurate, document-grounded answers via GPT-4
+- Run everything through a user-friendly **Streamlit web interface**
 
-- PDF document loading and chunking
-- Vector embeddings for efficient semantic search
-- Persistent vector storage for quick reloading
-- LLM-powered question answering
-- Agent-based reasoning for complex queries
+🔗 **Live demo** (when deployed): [https://omer-agentic-rag.streamlit.app](https://omer-agentic-rag.streamlit.app)
 
-## Requirements
+---
 
-- Python 3.8+
-- OpenAI API key (or alternative for local models)
-- Required packages (see Installation)
+## ✨ Features
 
-## Installation
+- 🧾 Upload your own PDF documents
+- 💬 Ask questions about literature, poetry, or authors
+- 📘 Answered using GPT-4, grounded in vector search
+- 🧠 Based on LangChain + FAISS
+- ✅ Uses `pdfplumber` for better Turkish PDF parsing
+- 💻 Simple UI powered by Streamlit
 
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/Polukal/agentic_rag.git
-   cd agentic_rag
-   ```
+---
 
-2. Install the required packages:
-   ```bash
-   pip install langchain openai faiss-cpu pypdf tiktoken
-   ```
+## 🚀 Deployment on Streamlit Cloud (Free)
 
-3. Set up your environment variables:
-   ```bash
-   export OPENAI_API_KEY="your-api-key"
-   ```
+1. Fork or clone this repo:  
+   📁 [https://github.com/Polukal/agentic_rag](https://github.com/Polukal/agentic_rag)
 
-## Usage
+2. Go to [https://streamlit.io/cloud](https://streamlit.io/cloud)
 
-1. Place your PDF files in the `data/` directory.
+3. Click **"New app"**, select your repo
 
-2. Create directories if they don't exist:
-   ```bash
-   mkdir -p data index
-   ```
+4. Set **main file** to `app.py`
 
-3. Run the main script:
-   ```bash
-   python main.py
-   ```
+5. Add your OpenAI API key under **Advanced Settings**:
+   - **Key**: `OPENAI_API_KEY`
+   - **Value**: `sk-...`
 
-4. Ask questions about your PDFs when prompted. Type 'exit' to quit.
+6. Click **Deploy**
 
-## How It Works
+You'll get a public URL like:
+https://your-name-your-app.streamlit.app
 
-1. **Document Loading**: The system loads PDF documents from the specified directory.
-2. **Text Splitting**: Documents are split into manageable chunks with overlap for context preservation.
-3. **Vectorization**: Text chunks are converted to vector embeddings using OpenAI's embedding model.
-4. **Indexing**: Vectors are indexed using FAISS for efficient retrieval.
-5. **Retrieval**: When a query is submitted, semantically similar chunks are retrieved.
-6. **Agent Reasoning**: An LLM agent uses the retrieved information to formulate an answer.
+---
 
-## Customization
+## 💻 Local Installation
 
-- Adjust chunk size and overlap in `RecursiveCharacterTextSplitter`
-- Change the number of retrieved documents with `search_kwargs={"k": 4}`
-- Use different language models by changing the `ChatOpenAI` model parameter
-- Implement HuggingFaceEmbeddings for local embedding models
+### 1. Clone the project
 
-## Project Structure
+```bash
+git clone https://github.com/Polukal/agentic_rag.git
+cd agentic_rag
+```
+
+### 2. Install requirements
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Add your OpenAI API key
+
+Create a .env file:
+
+```bash
+echo "OPENAI_API_KEY=your-key-here" > .env
+```
+
+### 4. Launch the app locally
+
+```bash
+python entry.py
+```
+
+Your browser will open http://localhost:8501
+
+---
+
+## 🧠 How It Works
+
+1. **PDF Upload**: PDFs are uploaded via the Streamlit UI
+2. **Text Extraction**: pdfplumber parses the documents
+3. **Chunking**: Text is split into overlapping sections
+4. **Embedding**: Chunks are converted into vector embeddings
+5. **Storage**: Embeddings are stored in a FAISS index
+6. **RAG**: Questions trigger retrieval + GPT-4 synthesis
+
+---
+
+## 🧪 Example Use Case
+
+You can paste questions like this:
+
+```
+Fazıl Hüsnü Dağlarca, şiiriyle ilgili yaptığı tanımlamalarda kendisini "yarısı şiir olan bir yaratık" olarak nitelendirmiştir. Bu benzetmeyle ne anlatmak istemektedir?
+
+A) Şiiri yalnızca çocukluk anılarına dayandırdığını  
+B) Şiirin kendi kişiliğiyle özdeşleştiğini ve yaşamının ayrılmaz bir parçası olduğunu  
+C) Şiiri sadece duygusal bir uğraş olarak gördüğünü  
+D) Şiir yazmayı öğretmenlerinden öğrendiğini  
+E) Şiiri Tanrı'dan bağımsız düşünemediğini
+```
+
+The app will answer based on PDF context and highlight the correct option.
+
+---
+
+## 📂 Project Structure
 
 ```
 agentic_rag/
-│
-├── main.py             # Main application code
-├── data/               # Directory for PDF files
-│   ├── your_large_1.pdf
-│   └── your_large_2.pdf
-├── index/              # Directory for vector store persistence
-│   └── (FAISS index files)
+├── app.py          # ✅ Streamlit UI
+├── entry.py        # 🔁 App launcher (local only)
+├── main.py         # PDF/vector logic (optional)
+├── data/           # Uploaded PDF files
+├── index/          # FAISS vectorstore
+├── requirements.txt
+├── .env            # API key for local use
+└── README.md
 ```
 
-## Limitations
+---
 
-- Works best with text-based PDFs (not scanned documents)
-- Performance depends on the quality of the PDF parsing
-- May require API key management for production use
-- Vector store can grow large with many documents
+## 📌 Notes
 
-## Future Improvements
+- Only text-based PDFs are supported (not scanned images)
+- Works best for literary analysis, poetry interpretation, MCQ reasoning
+- Vectorstore is automatically updated on PDF upload
 
-- Support for more document types (DOCX, TXT, etc.)
-- Document preprocessing and cleaning
-- Web UI for easier interaction
-- Multi-modal support for images within PDFs
-- Batch processing for large document collections
+---
+
+## 🛠️ Powered By
+
+- LangChain
+- OpenAI
+- Streamlit
+- FAISS
+- pdfplumber
+
+---
+
+## 📬 Contact
+
+Made with ❤️ by @Polukal
+
+Pull requests welcome!

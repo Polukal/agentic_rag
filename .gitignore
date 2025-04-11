@@ -1,4 +1,15 @@
-index/
+# Virtual environments
+.venv/
+venv/
+
+# PyInstaller build
+build/
+dist/
+*.spec
+
+# Python cache
 __pycache__/
-*.pyc
+
+# System
+.DS_Store
 .env
