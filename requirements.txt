@@ -1,0 +1,9 @@
+langchain>=0.1.13
+langchain-community>=0.0.22
+langchain-openai>=0.0.8
+openai>=1.0.0
+faiss-cpu
+chromadb
+pypdf
+tiktoken
+python-dotenv
