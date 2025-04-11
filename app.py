@@ -51,7 +51,7 @@ def build_rag_chain(vectorstore):
 
 # App UI
 st.set_page_config(page_title="📚 Turkish Literature Assistant", layout="wide")
-st.title("📖 Türk Edebiyatı RAG Asistanı")
+st.title("📖 Agentic RAG Asistanı")
 st.markdown("Bu uygulama, yüklediğiniz PDF dosyalarına göre çoktan seçmeli soruları cevaplandırır.")
 
 # File upload section
