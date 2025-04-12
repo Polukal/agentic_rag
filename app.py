@@ -8,7 +8,7 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.chains import RetrievalQA
 
-# ✅ Clean terminal output
+# Clean terminal output
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
 logging.getLogger("langchain").setLevel(logging.WARNING)
 logging.getLogger("langchain_community").setLevel(logging.WARNING)
