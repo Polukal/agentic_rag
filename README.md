@@ -10,6 +10,8 @@ The system enables users to:
 
 🔗 **Live demo** (when deployed): [https://omer-agentic-rag.streamlit.app](https://omer-agentic-rag.streamlit.app)
 
+> ⚠️ **Note:** The production app is currently private. To access the deployed version on Streamlit Cloud, your email must be whitelisted. Please contact the repository owner to request access.
+
 ---
 
 ## ✨ Features
@@ -94,13 +96,9 @@ Your browser will open http://localhost:8501
 You can paste questions like this:
 
 ```
-Fazıl Hüsnü Dağlarca, şiiriyle ilgili yaptığı tanımlamalarda kendisini "yarısı şiir olan bir yaratık" olarak nitelendirmiştir. Bu benzetmeyle ne anlatmak istemektedir?
+Summarize the key ideas discussed in the second half of the uploaded report titled "Artificial Intelligence in Education".
 
-A) Şiiri yalnızca çocukluk anılarına dayandırdığını  
-B) Şiirin kendi kişiliğiyle özdeşleştiğini ve yaşamının ayrılmaz bir parçası olduğunu  
-C) Şiiri sadece duygusal bir uğraş olarak gördüğünü  
-D) Şiir yazmayı öğretmenlerinden öğrendiğini  
-E) Şiiri Tanrı'dan bağımsız düşünemediğini
+The app will retrieve the most relevant paragraphs and use GPT-4 to synthesize a concise answer, citing the exact pages or sources it pulled from.
 ```
 
 The app will answer based on PDF context and highlight the correct option.
