@@ -61,6 +61,18 @@ cd agentic_rag
 ### 2. Install requirements
 
 ```bash
+# Step 1 – Create a virtual environment
+python3 -m venv .venv
+
+# Step 2 – Activate the virtual environment
+# macOS/Linux
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+
+# Step 3 – Install requirements
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
