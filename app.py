@@ -51,17 +51,17 @@ def build_rag_chain(vectorstore):
 
 # App UI
 st.set_page_config(page_title="📚 Agentic RAG Assistant", layout="wide")
-st.title("📖 Agentic RAG Asistanı")
-st.markdown("Bu uygulama, yüklediğiniz PDF dosyalarına göre cevap verebilen bir yapay zeka assistanıdır. Çoktan seçmeli soruları da cevaplandırabilir.")
+st.title("📖 Agentic RAG Assistant")
+st.markdown("This app allows you to ask questions to an AI assistant based on the PDF files you upload.")
 
 # File upload section
-uploaded_files = st.file_uploader("📤 PDF yükleyin", type="pdf", accept_multiple_files=True)
+uploaded_files = st.file_uploader("📤 Upload PDFs", type="pdf", accept_multiple_files=True)
 if uploaded_files:
     os.makedirs(DATA_DIR, exist_ok=True)
     for file in uploaded_files:
         with open(os.path.join(DATA_DIR, file.name), "wb") as f:
             f.write(file.getbuffer())
-    st.success("📄 Dosyalar yüklendi, vektör veritabanı güncelleniyor...")
+    st.success("📄 Files uploaded successfully. Vectorstore is being updated...")
 
     # Re-process and update vectorstore
     documents = load_documents_from_folder(DATA_DIR)
@@ -73,15 +73,15 @@ else:
 if vectorstore:
     rag_chain = build_rag_chain(vectorstore)
 
-    query = st.text_area("📝 Soru girin (çoktan seçmeli sorular dahil)", height=200)
+    query = st.text_area("📝 Enter your question", height=200)
     if st.button("🧠 Cevapla") and query.strip():
         with st.spinner("Cevap aranıyor..."):
             result = rag_chain.invoke({"query": query})
-            st.markdown("### ✍️ Yanıt")
+            st.markdown("### ✍️ Answer")
             st.write(result["result"])
 
-            with st.expander("📄 Kaynaklar"):
+            with st.expander("📄 Sources"):
                 for doc in result["source_documents"]:
                     st.markdown(f"- `{doc.metadata['source']}` (sayfa {doc.metadata.get('page', '?')})")
 else:
-    st.warning("Lütfen önce en az bir PDF yükleyin.")
+    st.warning("Please upload at least one PDF file to begin.")

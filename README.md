@@ -1,6 +1,6 @@
 # 🧠 Agentic RAG System
 
-This is a specialized **Retrieval-Augmented Generation (RAG)** system designed to interpret and answer questions, especially **multiple-choice style (MCQ)** questions based on PDF documents.
+This is a specialized **Retrieval-Augmented Generation (RAG)** system designed to interpret and answer questions, especially questions based on PDF documents.
 
 The system enables users to:
 - Upload their own PDFs (e.g., poetry, essays, practice questions)

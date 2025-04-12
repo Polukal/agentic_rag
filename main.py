@@ -9,7 +9,7 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.chains import RetrievalQA
 
 
-# ✅ Clean terminal output
+# -- Clean terminal output
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
 logging.getLogger("langchain").setLevel(logging.WARNING)
 logging.getLogger("langchain_community").setLevel(logging.WARNING)
@@ -71,28 +71,28 @@ def build_rag_chain(vectorstore):
 
 # -- Direct RAG-only interaction loop
 def run_rag_only(rag_chain):
-    print("\n🔎 RAG Sistemi Hazır. Soru sormaya başlayabilirsin.")
+    print("\n🔎 RAG system is ready. You can now ask questions.")
     while True:
-        query = input("\n📘 Sorunu yaz (ya da 'exit'): ")
+        query = input("\n📘 Type your question (or 'exit' to quit): ")
         if query.lower() == "exit":
             break
 
         response = rag_chain.invoke({"query": query})
-        print("\n✍️ Yanıt:\n", response["result"])
-        print("\n📄 Kaynaklar:")
+        print("\n✍️ Answer:\n", response["result"])
+        print("\n📄 Sources:")
         for doc in response["source_documents"]:
             print(f"- {doc.metadata['source']} (sayfa {doc.metadata.get('page', '?')})")
 
 # -- Main script entry
 if __name__ == "__main__":
     data_dir = "data"
-    print("📚 PDF'ler yükleniyor ve bölünüyor...")
+    print("📚 Loading and splitting PDF files...")
     docs = load_and_split_pdfs(data_dir)
 
-    print("📦 Vektör veri tabanı hazırlanıyor...")
+    print("📦 Preparing vector database...")
     vectorstore = create_or_load_vectorstore(docs)
 
-    print("🧠 RAG (PDF tabanlı bilgi alma) sistemi başlatılıyor...")
+    print("🧠 Starting the RAG (PDF-based question answering) system...")
     rag_chain = build_rag_chain(vectorstore)
 
     run_rag_only(rag_chain)
