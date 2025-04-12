@@ -74,8 +74,8 @@ if vectorstore:
     rag_chain = build_rag_chain(vectorstore)
 
     query = st.text_area("📝 Enter your question", height=200)
-    if st.button("🧠 Cevapla") and query.strip():
-        with st.spinner("Cevap aranıyor..."):
+    if st.button("🧠 Answer") and query.strip():
+        with st.spinner("Looking for answer..."):
             result = rag_chain.invoke({"query": query})
             st.markdown("### ✍️ Answer")
             st.write(result["result"])
