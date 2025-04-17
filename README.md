@@ -10,8 +10,6 @@ The system enables users to:
 
 🔗 **Live demo** (when deployed): [https://omer-agentic-rag.streamlit.app](https://omer-agentic-rag.streamlit.app)
 
-> 📚 **Default PDFs Included**: The `/data` folder includes sample Turkish literature PDFs preloaded for demo and testing purposes. You can start querying without uploading any files.
-
 > ⚠️ **Note:** The production app is currently private. To access the deployed version on Streamlit Cloud, your email must be whitelisted. Please contact the repository owner to request access.
 
 ---
