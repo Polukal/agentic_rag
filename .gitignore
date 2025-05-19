@@ -15,5 +15,5 @@ __pycache__/
 .env
 
 agentic_log.txt
-/index
+index/
 /data
