@@ -1,87 +1,83 @@
 import os
-import logging
 import streamlit as st
-import pdfplumber
-from langchain.schema import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.chains import RetrievalQA
+from main import initialize_rag_app, create_agent, log_print
+from langchain.callbacks import get_openai_callback
+import io
+import sys
 
-# Clean terminal output
-logging.getLogger("pdfminer").setLevel(logging.ERROR)
-logging.getLogger("langchain").setLevel(logging.WARNING)
-logging.getLogger("langchain_community").setLevel(logging.WARNING)
+# Clear the agentic log on every page refresh
+with open("agentic_log.txt", "w", encoding="utf-8") as f:
+    f.write("")
 
-# Constants
+LOG_FILE = "agentic_log.txt"
 DATA_DIR = "data"
-INDEX_DIR = "index"
 
-# Load and split PDFs
-def load_documents_from_folder(folder_path):
-    docs = []
-    for filename in os.listdir(folder_path):
-        if filename.endswith(".pdf"):
-            with pdfplumber.open(os.path.join(folder_path, filename)) as pdf:
-                for i, page in enumerate(pdf.pages):
-                    text = page.extract_text()
-                    if text:
-                        docs.append(Document(page_content=text, metadata={"source": filename, "page": i + 1}))
-    splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
-    return splitter.split_documents(docs)
+st.set_page_config(page_title="🤖 Agentic RAG", layout="wide")
+st.title("🧠 Agentic RAG Assistant")
+st.markdown(
+    "Upload PDFs and ask questions. The assistant will think through and answer based on your documents or its own knowledge."
+)
 
-# Vectorstore management
-@st.cache_resource
-def get_vectorstore():
-    if os.path.exists(os.path.join(INDEX_DIR, "index.faiss")):
-        return FAISS.load_local(INDEX_DIR, OpenAIEmbeddings(), allow_dangerous_deserialization=True)
-    else:
-        return None
+# -- Handle upload
+rebuild_needed = False
+uploaded_files = st.file_uploader(
+    "📤 Upload your PDFs", type="pdf", accept_multiple_files=True
+)
 
-def update_vectorstore(docs):
-    vectorstore = FAISS.from_documents(docs, OpenAIEmbeddings())
-    vectorstore.save_local(INDEX_DIR)
-    return vectorstore
-
-# RAG Chain
-def build_rag_chain(vectorstore):
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
-    llm = ChatOpenAI(temperature=0.2, model="gpt-4", openai_api_key=os.getenv("OPENAI_API_KEY"))
-    return RetrievalQA.from_chain_type(llm=llm, retriever=retriever, chain_type="stuff", return_source_documents=True)
-
-# App UI
-st.set_page_config(page_title="📚 Agentic RAG Assistant", layout="wide")
-st.title("📖 Agentic RAG Assistant")
-st.markdown("This app allows you to ask questions to an AI assistant based on the PDF files you upload.")
-
-# File upload section
-uploaded_files = st.file_uploader("📤 Upload PDFs", type="pdf", accept_multiple_files=True)
 if uploaded_files:
     os.makedirs(DATA_DIR, exist_ok=True)
     for file in uploaded_files:
-        with open(os.path.join(DATA_DIR, file.name), "wb") as f:
+        file_path = os.path.join(DATA_DIR, file.name)
+        with open(file_path, "wb") as f:
             f.write(file.getbuffer())
-    st.success("📄 Files uploaded successfully. Vectorstore is being updated...")
+    st.success("✅ Files uploaded successfully.")
+    log_print(
+        f"📄 User uploaded {len(uploaded_files)} file(s). Vectorstore will be rebuilt."
+    )
+    rebuild_needed = True
 
-    # Re-process and update vectorstore
-    documents = load_documents_from_folder(DATA_DIR)
-    vectorstore = update_vectorstore(documents)
+# -- Init backend
+vectorstore = initialize_rag_app(rebuild=rebuild_needed)
+
+if not vectorstore:
+    st.warning("📂 Please upload at least one valid PDF to begin.")
 else:
-    vectorstore = get_vectorstore()
+    agent = create_agent(vectorstore)
 
-# Question section
-if vectorstore:
-    rag_chain = build_rag_chain(vectorstore)
+    # -- Question input only if vectorstore exists
+    query = st.text_area(
+        "📝 Ask your question", placeholder="Type your question here...", height=200
+    )
 
-    query = st.text_area("📝 Enter your question", height=200)
-    if st.button("🧠 Answer") and query.strip():
-        with st.spinner("Looking for answer..."):
-            result = rag_chain.invoke({"query": query})
-            st.markdown("### ✍️ Answer")
-            st.write(result["result"])
+    if st.button("🧠 Let the Agent Think") and query.strip():
+        # Reset log at every run
+        with open(LOG_FILE, "w", encoding="utf-8") as f:
+            f.write("")
 
-            with st.expander("📄 Sources"):
-                for doc in result["source_documents"]:
-                    st.markdown(f"- `{doc.metadata['source']}` (sayfa {doc.metadata.get('page', '?')})")
-else:
-    st.warning("Please upload at least one PDF file to begin.")
+        with st.spinner("🤔 Thinking..."):
+            log_print(f"\n🧠 New User Query: {query}")
+
+            buffer = io.StringIO()
+            sys.stdout = buffer
+            with get_openai_callback() as cb:
+                result = agent.invoke({"input": query})
+            sys.stdout = sys.__stdout__
+
+            answer = result["output"] if "output" in result else str(result)
+            agent_trace = buffer.getvalue()
+
+            log_print(agent_trace)
+            log_print(f"✍️ Final Answer: {answer}")
+            log_print(
+                f"🧾 Tokens used: {cb.total_tokens} | Prompt: {cb.prompt_tokens} | Completion: {cb.completion_tokens}"
+            )
+
+            st.markdown("### ✍️ Final Answer")
+            st.write(answer)
+
+# -- Agentic log viewer
+if os.path.exists(LOG_FILE):
+    with open(LOG_FILE, "r", encoding="utf-8") as f:
+        logs = f.read()
+    with st.expander("📜 Agent's Thinking Log", expanded=False):
+        st.code(logs, language="text")

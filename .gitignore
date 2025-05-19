@@ -13,3 +13,7 @@ __pycache__/
 # System
 .DS_Store
 .env
+
+agentic_log.txt
+/index
+/data
