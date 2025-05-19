@@ -18,11 +18,11 @@ def log_print(msg):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(msg + "\n")
 
-# -- Silence noise
+# -- Silence logs
 logging.getLogger("pdfminer").setLevel(logging.ERROR)
 logging.getLogger("langchain").setLevel(logging.WARNING)
 
-# -- Load PDFs and chunk
+# -- Load and chunk PDFs
 def load_and_split_pdfs(pdf_dir):
     docs = []
 
@@ -50,7 +50,7 @@ def load_and_split_pdfs(pdf_dir):
 
     return split_docs
 
-# -- FAISS vectorstore
+# -- Vectorstore setup
 INDEX_DIR = "index"
 
 def create_or_load_vectorstore(docs, force_rebuild=False):
@@ -69,7 +69,7 @@ def create_or_load_vectorstore(docs, force_rebuild=False):
         vectorstore.save_local(INDEX_DIR)
         return vectorstore
 
-# -- Create tool-using agent
+# -- Agent and RAG setup
 def create_agent(vectorstore):
     tools = []
 
@@ -80,9 +80,23 @@ def create_agent(vectorstore):
                 llm=ChatOpenAI(temperature=0.2),
                 retriever=retriever,
                 chain_type="stuff",
-                return_source_documents=False
+                return_source_documents=True
             )
-            return rag_chain.run(query)
+            response = rag_chain.invoke({"query": query})
+            sources = response.get("source_documents", [])
+            formatted_sources = []
+
+            for doc in sources:
+                src = doc.metadata.get("source", "unknown.pdf")
+                page = doc.metadata.get("page", "?")
+                snippet = doc.page_content[:200].replace("\n", " ")
+                formatted_sources.append(f"- `{src}` (page {page}): {snippet}...")
+
+            source_text = "\n".join(formatted_sources)
+            log_print("📄 Source Documents Used:\n" + source_text)
+
+            final_result = response["result"] + "\n\n📄 Sources:\n" + source_text
+            return final_result
 
         rag_tool = Tool(
             name="VectorSearch",
@@ -109,7 +123,7 @@ def create_agent(vectorstore):
     agent = create_openai_functions_agent(llm, tools, prompt)
     return AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-# -- Initialize system
+# -- App entry
 def initialize_rag_app(rebuild=False):
     data_dir = "data"
     log_print("📚 Loading and splitting PDF files...")

@@ -5,7 +5,7 @@ from langchain.callbacks import get_openai_callback
 import io
 import sys
 
-# Clear the agentic log on every page refresh
+# Clear log on refresh
 with open("agentic_log.txt", "w", encoding="utf-8") as f:
     f.write("")
 
@@ -14,15 +14,11 @@ DATA_DIR = "data"
 
 st.set_page_config(page_title="🤖 Agentic RAG", layout="wide")
 st.title("🧠 Agentic RAG Assistant")
-st.markdown(
-    "Upload PDFs and ask questions. The assistant will think through and answer based on your documents or its own knowledge."
-)
+st.markdown("Upload PDFs and ask questions. The assistant will think based on your documents or general knowledge.")
 
-# -- Handle upload
+# -- Upload
 rebuild_needed = False
-uploaded_files = st.file_uploader(
-    "📤 Upload your PDFs", type="pdf", accept_multiple_files=True
-)
+uploaded_files = st.file_uploader("📤 Upload your PDFs", type="pdf", accept_multiple_files=True)
 
 if uploaded_files:
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -31,12 +27,10 @@ if uploaded_files:
         with open(file_path, "wb") as f:
             f.write(file.getbuffer())
     st.success("✅ Files uploaded successfully.")
-    log_print(
-        f"📄 User uploaded {len(uploaded_files)} file(s). Vectorstore will be rebuilt."
-    )
+    log_print(f"📄 User uploaded {len(uploaded_files)} file(s). Vectorstore will be rebuilt.")
     rebuild_needed = True
 
-# -- Init backend
+# -- Backend
 vectorstore = initialize_rag_app(rebuild=rebuild_needed)
 
 if not vectorstore:
@@ -44,13 +38,10 @@ if not vectorstore:
 else:
     agent = create_agent(vectorstore)
 
-    # -- Question input only if vectorstore exists
-    query = st.text_area(
-        "📝 Ask your question", placeholder="Type your question here...", height=200
-    )
+    query = st.text_area("📝 Ask your question", placeholder="Type your question here...", height=200)
 
     if st.button("🧠 Let the Agent Think") and query.strip():
-        # Reset log at every run
+        # Reset log at each query
         with open(LOG_FILE, "w", encoding="utf-8") as f:
             f.write("")
 
@@ -63,19 +54,28 @@ else:
                 result = agent.invoke({"input": query})
             sys.stdout = sys.__stdout__
 
-            answer = result["output"] if "output" in result else str(result)
-            agent_trace = buffer.getvalue()
+            full_response = result["output"] if "output" in result else str(result)
 
-            log_print(agent_trace)
-            log_print(f"✍️ Final Answer: {answer}")
-            log_print(
-                f"🧾 Tokens used: {cb.total_tokens} | Prompt: {cb.prompt_tokens} | Completion: {cb.completion_tokens}"
-            )
+            if "\n\n📄 Sources:\n" in full_response:
+                answer_part, sources_block = full_response.split("\n\n📄 Sources:\n", 1)
+                source_lines = sources_block.splitlines()
+            else:
+                answer_part = full_response
+                source_lines = []
+
+            log_print(buffer.getvalue())
+            log_print(f"✍️ Final Answer: {answer_part}")
+            log_print(f"🧾 Tokens used: {cb.total_tokens} | Prompt: {cb.prompt_tokens} | Completion: {cb.completion_tokens}")
 
             st.markdown("### ✍️ Final Answer")
-            st.write(answer)
+            st.write(answer_part)
 
-# -- Agentic log viewer
+            if source_lines:
+                with st.expander("📄 Source Info by Page", expanded=True):
+                    for line in source_lines:
+                        st.markdown(line)
+
+# -- Log viewer
 if os.path.exists(LOG_FILE):
     with open(LOG_FILE, "r", encoding="utf-8") as f:
         logs = f.read()
